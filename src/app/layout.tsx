@@ -1,14 +1,14 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './../styles/globals.css';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./../styles/globals.css";
 
 const InterFont = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
+  variable: "--font-inter",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: 'PetSoft - Pet daycare software',
+  title: "PetSoft - Pet daycare software",
   description: "Take of people's pets responsibly with PetSoft",
 };
 
@@ -18,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body
-        className={`${InterFont.variable} text-sm text-zinc-900 bg-[#E5E8EC] antialiased min-h-screen`}
+        className={`${InterFont.variable} min-h-screen bg-[#E5E8EC] text-sm text-zinc-900 antialiased`}
       >
         {children}
       </body>
