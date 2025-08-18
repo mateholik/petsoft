@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import Logo from '../../components/Logo';
+import Logo from '@/components/Logo';
 import Image from 'next/image';
 import Link from 'next/link';
 
