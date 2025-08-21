@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 import { createContext, useState } from "react";
 
