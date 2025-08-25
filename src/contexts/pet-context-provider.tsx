@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 import { createContext, useState } from "react";
 
@@ -14,6 +13,7 @@ type PetContextType = {
   handleSelectedPetId: (id: string) => void;
   selectedPet: Pet | undefined;
   numberOfPets: number;
+  handleCheckoutPet: (id: string) => void;
 };
 export const PetContext = createContext<PetContextType | null>(null);
 
@@ -30,6 +30,10 @@ export default function PetContextProvider({
   const handleSelectedPetId = (id: string) => {
     setSelectedPetId(id);
   };
+  const handleCheckoutPet = (id: string) => {
+    setPets((prevPets) => prevPets.filter((pet) => pet.id !== id));
+    setSelectedPetId(null);
+  };
 
   return (
     <PetContext.Provider
@@ -39,6 +43,7 @@ export default function PetContextProvider({
         handleSelectedPetId,
         selectedPet,
         numberOfPets,
+        handleCheckoutPet,
       }}
     >
       {children}
