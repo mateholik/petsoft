@@ -1,3 +1,0 @@
-export default function PetForm() {
-  return <form>form here.....</form>;
-}

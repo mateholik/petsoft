@@ -21,18 +21,26 @@ export default function PetContextProvider({
   data,
   children,
 }: PetContextProviderProps) {
+  //state
   const [pets, setPets] = useState(data);
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
+  //derived state
   const selectedPet = pets.find((pet) => pet.id === selectedPetId);
   const numberOfPets = pets.length;
 
+  //event handlers/actions
   const handleSelectedPetId = (id: string) => {
     setSelectedPetId(id);
   };
   const handleCheckoutPet = (id: string) => {
     setPets((prevPets) => prevPets.filter((pet) => pet.id !== id));
     setSelectedPetId(null);
+  };
+
+  const handleAddPet = (pet: Pet) => {
+    setPets((prevPet) => [...prevPet, pet]);
+    setSelectedPetId(pet.id);
   };
 
   return (
