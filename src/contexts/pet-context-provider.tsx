@@ -24,9 +24,7 @@ export default function PetContextProvider({
   data: pets,
   children,
 }: PetContextProviderProps) {
-  console.log("RENDERING pet context", pets.length);
   //state
-  // const [pets, setPets] = useState(data);
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
   //derived state
