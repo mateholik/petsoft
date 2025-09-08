@@ -2,13 +2,14 @@
 import { usePetContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 import Image from "next/image";
-import React from "react";
+import React, { useTransition } from "react";
 import PetButton from "./pet-button";
-import { checkoutPet } from "@/actions/actions";
+import { deletePet } from "@/actions/actions";
 import { toast } from "sonner";
 
 export default function PetDetails() {
   const { selectedPet } = usePetContext();
+
   return (
     <div className="flex h-full w-full flex-col">
       {!selectedPet ? (
@@ -28,6 +29,7 @@ type Props = {
   pet: Pet;
 };
 function TopBar({ pet }: Props) {
+  const { handleCheckoutPet } = usePetContext();
   return (
     <div className="border-light flex items-center border-b bg-white px-8 py-5">
       <Image
@@ -37,19 +39,13 @@ function TopBar({ pet }: Props) {
         height={75}
         className="h-[75px] w-[75px] rounded-full object-cover"
       />
-      <h2 className="ml-5 text-3xl leading-7 font-semibold">{pet?.name}</h2>
+      <h2 className="ml-5 text-3xl leading-7 font-semibold">{pet.name}</h2>
 
       <div className="ml-auto space-x-2">
         <PetButton actionType="edit">Edit</PetButton>
         <PetButton
           actionType="checkout"
-          onClick={async () => {
-            const error = await checkoutPet(pet.id);
-            if (error) {
-              toast.warning(error.message);
-              return;
-            }
-          }}
+          onClick={async () => await handleCheckoutPet(pet.id)}
         >
           Checkout
         </PetButton>
@@ -65,11 +61,11 @@ function OtherInfo({ pet }: Props) {
         <h3 className="text-[13px] font-medium text-zinc-700 uppercase">
           Owner name
         </h3>
-        <p className="mt-1 text-lg text-zinc-800">{pet?.ownerName}</p>
+        <p className="mt-1 text-lg text-zinc-800">{pet.ownerName}</p>
       </div>
       <div>
         <h3 className="text-[13px] font-medium text-zinc-700 uppercase">Age</h3>
-        <p className="mt-1 text-lg text-zinc-800"> {pet?.age}</p>
+        <p className="mt-1 text-lg text-zinc-800"> {pet.age}</p>
       </div>
     </div>
   );
