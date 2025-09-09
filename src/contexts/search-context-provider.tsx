@@ -15,7 +15,6 @@ export default function SearchContextProvider({
   children,
 }: SearchContextProviderProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  console.log(searchQuery);
 
   const handlesChangeSearchQuery = (query: string) => {
     setSearchQuery(query);

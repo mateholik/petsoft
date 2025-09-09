@@ -1,7 +1,9 @@
 "use client";
 
 import { addPet, deletePet, updatePet } from "@/actions/actions";
-import { Pet } from "@/lib/types";
+import { PetEssentials } from "@/lib/types";
+import { Pet } from "@prisma/client";
+
 import { createContext, useOptimistic, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,12 +14,12 @@ type PetContextProviderProps = {
 type PetContextType = {
   pets: Pet[];
   selectedPetId: string | null;
-  handleSelectedPetId: (id: string) => void;
+  handleSelectedPetId: (id: Pet["id"]) => void;
   selectedPet: Pet | undefined;
   numberOfPets: number;
-  handleCheckoutPet: (id: string) => Promise<void>;
-  handleAddPet: (pet: Omit<Pet, "id">) => Promise<void>;
-  handleEditPet: (id: string, pet: Omit<Pet, "id">) => Promise<void>;
+  handleCheckoutPet: (id: Pet["id"]) => Promise<void>;
+  handleAddPet: (pet: PetEssentials) => Promise<void>;
+  handleEditPet: (id: Pet["id"], pet: PetEssentials) => Promise<void>;
 };
 export const PetContext = createContext<PetContextType | null>(null);
 
@@ -54,11 +56,11 @@ export default function PetContextProvider({
   const numberOfPets = optimisticPets.length;
 
   //event handlers/actions
-  const handleSelectedPetId = (id: string) => {
+  const handleSelectedPetId = (id: Pet["id"]) => {
     setSelectedPetId(id);
   };
 
-  const handleAddPet = async (newPetData: Omit<Pet, "id">) => {
+  const handleAddPet = async (newPetData: PetEssentials) => {
     setOptimisticPets({ action: "add", payload: newPetData });
     const error = await addPet(newPetData);
     if (error) {
@@ -67,7 +69,7 @@ export default function PetContextProvider({
     }
   };
 
-  const handleEditPet = async (petId: string, newPetData: Omit<Pet, "id">) => {
+  const handleEditPet = async (petId: Pet["id"], newPetData: PetEssentials) => {
     setOptimisticPets({
       action: "edit",
       payload: { id: petId, newPetData },
@@ -79,7 +81,7 @@ export default function PetContextProvider({
     }
   };
 
-  const handleCheckoutPet = async (id: string) => {
+  const handleCheckoutPet = async (id: Pet["id"]) => {
     setOptimisticPets({ action: "remove", payload: id });
     const error = await deletePet(id);
     if (error) {
