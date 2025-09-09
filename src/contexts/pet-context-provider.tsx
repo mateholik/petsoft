@@ -28,10 +28,24 @@ export default function PetContextProvider({
   //state
   const [optimisticPets, setOptimisticPets] = useOptimistic(
     data,
-    (state, newPet) => [
-      ...state,
-      { ...newPet, id: (Math.random() * 100000).toString() },
-    ], //optimistic update
+    (state, { action, payload }) => {
+      switch (action) {
+        case "add":
+          const newPet: Pet = {
+            id: (Math.random() * 1000000).toFixed(0),
+            ...payload,
+          };
+          return [...state, newPet];
+        case "remove":
+          return state.filter((pet) => pet.id !== payload);
+        case "edit":
+          return state.map((pet) =>
+            pet.id === payload.id ? { ...pet, ...payload.newPetData } : pet,
+          );
+        default:
+          return state;
+      }
+    },
   );
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
@@ -43,16 +57,9 @@ export default function PetContextProvider({
   const handleSelectedPetId = (id: string) => {
     setSelectedPetId(id);
   };
-  const handleCheckoutPet = async (id: string) => {
-    const error = await deletePet(id);
-    if (error) {
-      toast.warning(error.message);
-      return;
-    }
-  };
 
   const handleAddPet = async (newPetData: Omit<Pet, "id">) => {
-    setOptimisticPets(newPetData);
+    setOptimisticPets({ action: "add", payload: newPetData });
     const error = await addPet(newPetData);
     if (error) {
       toast.warning(error.message);
@@ -61,7 +68,20 @@ export default function PetContextProvider({
   };
 
   const handleEditPet = async (petId: string, newPetData: Omit<Pet, "id">) => {
+    setOptimisticPets({
+      action: "edit",
+      payload: { id: petId, newPetData },
+    });
     const error = await updatePet(petId, newPetData);
+    if (error) {
+      toast.warning(error.message);
+      return;
+    }
+  };
+
+  const handleCheckoutPet = async (id: string) => {
+    setOptimisticPets({ action: "remove", payload: id });
+    const error = await deletePet(id);
     if (error) {
       toast.warning(error.message);
       return;
