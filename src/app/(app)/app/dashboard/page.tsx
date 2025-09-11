@@ -19,7 +19,7 @@ export default function Page() {
           <SearchForm />
         </div>
         <div className="md:col-span-1 md:col-start-1 md:row-span-full md:row-start-2">
-          <ContentBlock className="relative">
+          <ContentBlock className="relative overflow-y-scroll">
             <PetList />
             <div className="absolute right-4 bottom-4">
               <PetButton actionType="add" />

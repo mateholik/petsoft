@@ -3,10 +3,20 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import PetFromBtn from "./pet-form-btn";
+import { useForm } from "react-hook-form";
+import { log } from "console";
 
 type PetFormProps = {
   actionType: "add" | "edit";
   onFormSubmission: () => void;
+};
+
+type TPetForm = {
+  name: string;
+  ownerName: string;
+  imageUrl: string;
+  age: number;
+  notes: string;
 };
 
 export default function PetForm({
@@ -15,9 +25,18 @@ export default function PetForm({
 }: PetFormProps) {
   const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
 
+  const {
+    register,
+    formState: { errors },
+    trigger,
+  } = useForm<TPetForm>();
+
   return (
     <form
       action={async (formData) => {
+        const isValid = await trigger();
+
+        if (!isValid) return;
         onFormSubmission();
         const petData = {
           name: formData.get("name") as string,
@@ -42,53 +61,76 @@ export default function PetForm({
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            name="name"
-            type="text"
-            required
-            defaultValue={actionType === "edit" ? selectedPet?.name : ""}
+            {...register("name", {
+              required: "This field is required",
+            })}
           />
+          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="ownerName">Owner name</Label>
           <Input
             id="ownerName"
-            type="text"
-            name="ownerName"
-            required
-            defaultValue={actionType === "edit" ? selectedPet?.ownerName : ""}
+            {...register("ownerName", {
+              required: "This field is required",
+              maxLength: {
+                value: 15,
+                message: "max chars 15",
+              },
+            })}
           />
+          {errors.ownerName && (
+            <p className="text-red-500">{errors.ownerName.message}</p>
+          )}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="imageUrl">Image url</Label>
           <Input
             id="imageUrl"
-            type="text"
-            name="imageUrl"
-            defaultValue={actionType === "edit" ? selectedPet?.imageUrl : ""}
+            {...register("imageUrl", {
+              pattern: {
+                value:
+                  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
+                message: "Should be a valid url",
+              },
+            })}
           />
+          {errors.imageUrl && (
+            <p className="text-red-500">{errors.imageUrl.message}</p>
+          )}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="age">Age</Label>
           <Input
-            name="age"
             id="age"
-            type="number"
-            required
-            defaultValue={actionType === "edit" ? selectedPet?.age : ""}
+            {...register("age", {
+              required: "This is required",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Please enter a number",
+              },
+            })}
           />
+          {errors.age && <p className="text-red-500">{errors.age.message}</p>}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="notes">Notes</Label>
           <Textarea
             id="notes"
-            name="notes"
-            required
-            defaultValue={actionType === "edit" ? selectedPet?.notes : ""}
+            {...register("notes", {
+              maxLength: {
+                value: 100,
+                message: "max chars 100",
+              },
+            })}
           />
+          {errors.notes && (
+            <p className="text-red-500">{errors.notes.message}</p>
+          )}
         </div>
       </div>
       <PetFromBtn actionType={actionType} />
