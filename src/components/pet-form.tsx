@@ -4,39 +4,15 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import PetFromBtn from "./pet-form-btn";
 import { Resolver, useForm } from "react-hook-form";
-import z from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_PET_IMAGE } from "@/lib/constants";
+import { TPetForm, petFormSchema } from "@/lib/validations";
 
 type PetFormProps = {
   actionType: "add" | "edit";
   onFormSubmission: () => void;
 };
-
-const petFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, { message: "Name is required" })
-    .max(100, { message: "Max chars 100" }),
-  ownerName: z
-    .string()
-    .trim()
-    .min(1, { message: "Owner name is required" })
-    .max(100, { message: "Max chars 100" }),
-  imageUrl: z.union([z.literal(""), z.url({ message: "Invalid URL" }).trim()]),
-  age: z.coerce.number().int().positive().max(99999),
-  notes: z.union([
-    z.literal(""),
-    z.string().trim().max(1000, { message: "Max chars 100" }),
-  ]),
-});
-// .transform((data) => ({
-//   ...data,
-//   imageUrl: data.imageUrl || DEFAULT_PET_IMAGE,
-// })); THIS WOULD WORK IS WE WOULD USE onSubmit instead of action on html form tag
-
-type TPetForm = z.infer<typeof petFormSchema>;
 
 export default function PetForm({
   actionType,
@@ -56,6 +32,9 @@ export default function PetForm({
   return (
     <form
       action={async () => {
+        //validation from ZOD.
+        // THIS WOULD WORK IS WE WOULD USE onSubmit instead of action on html form tag. ACtually all transformations are not working like string() numbet() etc in ZOD now, because of the action attribute
+
         const isValid = await trigger();
         if (!isValid) return;
 
