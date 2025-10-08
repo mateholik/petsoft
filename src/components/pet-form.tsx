@@ -3,21 +3,40 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import PetFromBtn from "./pet-form-btn";
-import { useForm } from "react-hook-form";
-import { log } from "console";
+import { Resolver, useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 
 type PetFormProps = {
   actionType: "add" | "edit";
   onFormSubmission: () => void;
 };
 
-type TPetForm = {
-  name: string;
-  ownerName: string;
-  imageUrl: string;
-  age: number;
-  notes: string;
-};
+const petFormSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { message: "Name is required" })
+    .max(100, { message: "Max chars 100" }),
+  ownerName: z
+    .string()
+    .trim()
+    .min(1, { message: "Owner name is required" })
+    .max(100, { message: "Max chars 100" }),
+  imageUrl: z.union([z.literal(""), z.url({ message: "Invalid URL" }).trim()]),
+  age: z.coerce.number().int().positive().max(99999),
+  notes: z.union([
+    z.literal(""),
+    z.string().trim().max(1000, { message: "Max chars 100" }),
+  ]),
+});
+// .transform((data) => ({
+//   ...data,
+//   imageUrl: data.imageUrl || DEFAULT_PET_IMAGE,
+// })); THIS WOULD WORK IS WE WOULD USE onSubmit instead of action on html form tag
+
+type TPetForm = z.infer<typeof petFormSchema>;
 
 export default function PetForm({
   actionType,
@@ -29,24 +48,22 @@ export default function PetForm({
     register,
     formState: { errors },
     trigger,
-  } = useForm<TPetForm>();
+    getValues,
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema) as Resolver<TPetForm>,
+  });
 
   return (
     <form
-      action={async (formData) => {
+      action={async () => {
         const isValid = await trigger();
-
         if (!isValid) return;
+
         onFormSubmission();
-        const petData = {
-          name: formData.get("name") as string,
-          ownerName: formData.get("ownerName") as string,
-          imageUrl:
-            (formData.get("imageUrl") as string) ||
-            "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-          age: Number(formData.get("age")),
-          notes: formData.get("notes") as string,
-        };
+
+        const petData = petFormSchema.parse(getValues());
+
+        petData.imageUrl = petData.imageUrl || DEFAULT_PET_IMAGE;
 
         if (actionType === "add") {
           await handleAddPet(petData);

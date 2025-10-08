@@ -6,6 +6,8 @@ import { Pet } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function addPet(pet: PetEssentials) {
+  console.log("pet", pet);
+
   await sleep(1000);
   try {
     await prisma.pet.create({
