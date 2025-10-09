@@ -1,5 +1,19 @@
-import React from 'react';
+import AuthForm from "@/components/AuthForm";
+import H1 from "@/components/h1";
+import Link from "next/link";
+import React from "react";
 
 export default function Page() {
-  return <div>log in</div>;
+  return (
+    <main>
+      <H1 className="mb-5 text-center">Log in</H1>
+      <AuthForm />
+      <p className="mt-6 text-sm text-zinc-500">
+        No Account yet?
+        <Link href="/signup" className="font-medium">
+          Sign up
+        </Link>
+      </p>
+    </main>
+  );
 }
