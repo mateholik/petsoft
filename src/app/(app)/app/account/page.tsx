@@ -1,13 +1,21 @@
 import ContentBlock from "@/components/content-block";
 import H1 from "@/components/h1";
+import SignOutBtn from "@/components/sign-out-btn";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import React from "react";
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth();
+  //middleware will handle this, but some ppl complain thath middleware is not running everytime on server pages
+  if (!session?.user) redirect("login");
+
   return (
     <main>
       <H1 className="my-8 text-white">Account </H1>
-      <ContentBlock className="flex h-[500px] items-center justify-center p-8">
-        <p>Logged in as ...</p>
+      <ContentBlock className="flex h-[500px] flex-col items-center justify-center gap-4 p-8">
+        <p>Logged in as {session.user.email}</p>
+        <SignOutBtn />
       </ContentBlock>
     </main>
   );
