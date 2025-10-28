@@ -67,6 +67,11 @@ export async function addPet(pet: unknown) {
 export async function updatePet(petId: unknown, newPetData: unknown) {
   await sleep(1000);
 
+  //authentication chech
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  //validation
   const validatedPet = petFormSchema.safeParse(newPetData);
   const validatedPetId = petIdSchema.safeParse(petId);
 
@@ -81,6 +86,22 @@ export async function updatePet(petId: unknown, newPetData: unknown) {
     };
   }
 
+  //authorization check (user owns pet)
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+  });
+  if (!pet) {
+    return { message: "Pet not found" };
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "Not authorized",
+    };
+  }
+
+  //database mutation
   try {
     await prisma.pet.update({
       where: { id: validatedPetId.data },
@@ -96,14 +117,34 @@ export async function updatePet(petId: unknown, newPetData: unknown) {
 export async function deletePet(petId: unknown) {
   await sleep(1000);
 
-  const validatedPetId = petIdSchema.safeParse(petId);
+  //authentication chech
+  const session = await auth();
+  if (!session?.user) redirect("/login");
 
+  //validation
+  const validatedPetId = petIdSchema.safeParse(petId);
   if (!validatedPetId.success) {
     return {
       message: "server side validation failed: petId",
     };
   }
 
+  //authorization check (user owns pet)
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+  });
+  if (!pet) {
+    return { message: "Pet not found" };
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "Not authorized",
+    };
+  }
+
+  //database mutation
   try {
     await prisma.pet.delete({
       where: { id: validatedPetId.data },
