@@ -9,7 +9,11 @@ import { revalidatePath } from "next/cache";
 import { checkAuth, getPetById } from "@/lib/server-utils";
 
 // --- user actions ---
-export async function logIn(formData: FormData) {
+export async function logIn(formData: unknown) {
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid form data" };
+  }
+
   await signIn("credentials", formData);
 }
 
