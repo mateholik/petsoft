@@ -6,8 +6,7 @@ import { petFormSchema, petIdSchema } from "@/lib/validations";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { checkAuth } from "@/lib/server-utils";
 
 // --- user actions ---
 export async function logIn(formData: FormData) {
@@ -36,8 +35,7 @@ export async function signUp(formData: FormData) {
 export async function addPet(pet: unknown) {
   await sleep(1000);
 
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const session = await checkAuth();
 
   const validatedPet = petFormSchema.safeParse(pet);
 
@@ -68,8 +66,7 @@ export async function updatePet(petId: unknown, newPetData: unknown) {
   await sleep(1000);
 
   //authentication chech
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const session = await checkAuth();
 
   //validation
   const validatedPet = petFormSchema.safeParse(newPetData);
@@ -118,8 +115,7 @@ export async function deletePet(petId: unknown) {
   await sleep(1000);
 
   //authentication chech
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const session = await checkAuth();
 
   //validation
   const validatedPetId = petIdSchema.safeParse(petId);
