@@ -35,9 +35,7 @@ export async function logIn(prevState: unknown, formData: unknown) {
         }
       }
     }
-    return {
-      message: "Could not sign in",
-    };
+    throw error; // when signin is succesfull, next auth uses redirect. nextjs redirect works by throwing an error, so thats wjy login is succesful, but we see error, because we catch it here, althou everything is ok.  so we have to rethrow it to make redirect actually happen
   }
 }
 
