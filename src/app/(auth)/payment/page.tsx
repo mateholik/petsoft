@@ -2,6 +2,8 @@
 import { createCheckoutSession } from "@/actions/actions";
 import H1 from "@/components/h1";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { use, useTransition } from "react";
 
 type PageProps = {
@@ -13,9 +15,25 @@ export default function Page({ searchParams }: PageProps) {
 
   const [isPending, startTransition] = useTransition();
 
+  const { data: session, update, status } = useSession();
+
+  const router = useRouter();
+
   return (
     <main className="flex flex-col items-center space-y-10">
       <H1>Petsoft access requires payment</H1>
+      {success && (
+        <Button
+          disabled={status === "loading" || session?.user.hasAccess}
+          onClick={async () => {
+            await update(true);
+            router.push("/app/dashboard");
+          }}
+        >
+          Access PetSoft
+        </Button>
+      )}
+
       {!success && (
         <Button
           disabled={isPending}

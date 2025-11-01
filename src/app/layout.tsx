@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./../styles/globals.css";
+import { SessionProvider } from "next-auth/react";
 
 const InterFont = Inter({
   variable: "--font-inter",
@@ -22,7 +23,7 @@ export default function RootLayout({
       <body
         className={`${InterFont.variable} min-h-screen bg-[#E5E8EC] text-sm text-zinc-900 antialiased`}
       >
-        {children}
+        <SessionProvider> {children}</SessionProvider>
       </body>
     </html>
   );
