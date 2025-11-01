@@ -54,10 +54,6 @@ const config = {
       const isLoggedIn = !!auth?.user;
       const hasPayed = auth?.user.hasAccess;
 
-      if (isTryingToAccessApp && isLoggedIn && hasPayed) {
-        return true;
-      }
-
       if (isTryingToAccessApp && !isLoggedIn) {
         return false;
       }
@@ -66,15 +62,27 @@ const config = {
         return Response.redirect(new URL("/payment", request.nextUrl));
       }
 
-      if (!isTryingToAccessApp && isLoggedIn) {
+      if (isTryingToAccessApp && isLoggedIn && hasPayed) {
+        return true;
+      }
+
+      if (
+        isLoggedIn &&
+        (request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")) &&
+        hasPayed
+      ) {
+        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+      }
+
+      if (!isTryingToAccessApp && isLoggedIn && !hasPayed) {
         if (
           request.nextUrl.pathname.includes("/login") ||
-          (request.nextUrl.pathname.includes("/signup") && !hasPayed)
+          request.nextUrl.pathname.includes("/signup")
         ) {
           return Response.redirect(new URL("/payment", request.nextUrl));
-        } else {
-          return true;
         }
+        return true;
       }
 
       if (!isTryingToAccessApp && !isLoggedIn) {
@@ -90,9 +98,10 @@ const config = {
         token.email = user.email;
         token.hasAccess = user.hasAccess;
       }
-      //on every request
+      //on useSession update. manually from client trigger token update
       if (trigger === "update") {
         const userFromDb = await getUserByEmail(token.email!);
+
         if (userFromDb) {
           token.hasAccess = userFromDb.hasAccess;
         }
