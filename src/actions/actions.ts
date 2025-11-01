@@ -11,7 +11,8 @@ import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 // --- user actions ---
 export async function logIn(prevState: unknown, formData: unknown) {
@@ -201,7 +202,7 @@ export async function createCheckoutSession() {
   const session = await checkAuth();
 
   const checkoutSession = await stripe.checkout.sessions.create({
-    customer_email: session.user.email,
+    customer_email: session.user.email!,
     line_items: [
       {
         price: process.env.PRODUCT_ID,
@@ -210,8 +211,8 @@ export async function createCheckoutSession() {
     ],
     mode: "payment",
     success_url: `${process.env.CANNONICAL_URL}/payment?success=true`,
-    cancel_url: `${process.env.CANNONICAL_URL}/payment?canlelled=true`,
+    cancel_url: `${process.env.CANNONICAL_URL}/payment?cancelled=true`,
   });
 
-  redirect(checkoutSession.url);
+  redirect(checkoutSession.url!);
 }

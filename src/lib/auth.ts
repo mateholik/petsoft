@@ -51,19 +51,25 @@ const config = {
     authorized: ({ request, auth }) => {
       //runs on every REQUEST with middlware
       const isTryingToAccessApp = request.nextUrl.pathname.includes("/app");
-
       const isLoggedIn = !!auth?.user;
-      if (isTryingToAccessApp && isLoggedIn) {
+      const hasPayed = auth?.user.hasAccess;
+
+      if (isTryingToAccessApp && isLoggedIn && hasPayed) {
         return true;
       }
+
       if (isTryingToAccessApp && !isLoggedIn) {
         return false;
+      }
+
+      if (isTryingToAccessApp && isLoggedIn && !hasPayed) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
       }
 
       if (!isTryingToAccessApp && isLoggedIn) {
         if (
           request.nextUrl.pathname.includes("/login") ||
-          request.nextUrl.pathname.includes("/signup")
+          (request.nextUrl.pathname.includes("/signup") && !hasPayed)
         ) {
           return Response.redirect(new URL("/payment", request.nextUrl));
         } else {
@@ -81,12 +87,14 @@ const config = {
       if (user) {
         //on sign in
         token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
       return token;
     },
     session: ({ session, token }) => {
       if (session.user) {
-        session.user.id = token.userId;
+        session.user.id = token.userId as string;
+        session.user.hasAccess = token.hasAccess as boolean;
       }
 
       return session;

@@ -4,7 +4,6 @@ import BackgroundPattern from "@/components/BackgroundPattern";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
 import React from "react";
-import prisma from "@/lib/db";
 import { Toaster } from "@/components/ui/sonner";
 import { checkAuth, getsPetByUserId } from "@/lib/server-utils";
 
