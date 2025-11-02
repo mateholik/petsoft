@@ -52,7 +52,7 @@ const config = {
       //runs on every REQUEST with middlware
       const isTryingToAccessApp = request.nextUrl.pathname.includes("/app");
       const isLoggedIn = !!auth?.user;
-      const hasPayed = auth?.user.hasAccess;
+      const hasPayed = auth?.user?.hasAccess;
 
       if (isTryingToAccessApp && !isLoggedIn) {
         return false;
